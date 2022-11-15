@@ -1,0 +1,11 @@
+{
+  "type": "B2B",
+  "source": "CONTROLTOWER",
+  "value": [
+    {
+      "isoCode": "string",
+      "type": "string",
+      "value": "string"
+    }
+  ]
+}

@@ -1,5 +1,3 @@
-import { use__NUXTDDD.PASCALCASE__Store } from '@__NUXTDDD.CAPITALCASE__/stores/useStore';
-
 export default () => {
   const store = use__NUXTDDD.PASCALCASE__Store();
 

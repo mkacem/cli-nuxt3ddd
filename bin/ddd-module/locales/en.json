@@ -1,3 +1,7 @@
 {
-  "HI":"hello __NUXTDDD.CAMELCASE__ module"
+  "HI":"hello __NUXTDDD.CAMELCASE__ module",
+  "BACK_HOME_MSG":"Back to home :)",
+  "BACK":"Back",
+  "RELATED_ARTICLES":"Related articles",
+  "WELCOME":"Welcome Nuxt3DDD"
 }

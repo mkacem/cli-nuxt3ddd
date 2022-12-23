@@ -1,7 +1,7 @@
-import schema from '../../schemas/schema.json';
+import schema from './schema.json';
 import config from '../../config.json';
 
-var api = Cypress.env('env') == 'dev' ? config.envDev.API : config.env.API;
+var api = Cypress.env('env') == 'dev' ? config.envDev.API_MOCK : config.env.API_MOCK;
 
 /* posts list spec   */
 describe(

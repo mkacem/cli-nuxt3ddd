@@ -12,7 +12,7 @@ export const use__NUXTDDD.PASCALCASE__Store = defineStore('use__NUXTDDD.PASCALCA
     async useGetPosts({ onError, onSuccess }: any) {
       try {
         const response: any = await fetch(
-          useNuxtApp().$config.API + useNuxtApp().$config.POSTS, {
+          useNuxtApp().$config.API_MOCK + useNuxtApp().$config.POSTS, {
         });
         const res = await response.json();
         if (response.status == 200) {
@@ -28,7 +28,7 @@ export const use__NUXTDDD.PASCALCASE__Store = defineStore('use__NUXTDDD.PASCALCA
     async useGetPost({ $data, onError, onSuccess }: any) {
       try {
         const response: any = await fetch(
-          useNuxtApp().$config.API + useNuxtApp().$config.POST.replace(/:id/,$data), {
+          useNuxtApp().$config.API_MOCK + useNuxtApp().$config.POST.replace(/:id/,$data), {
         });
         const res = await response.json();
         if (response.status == 200) {

@@ -1,5 +1,5 @@
 <template>
   <header>
-    this header
+    Header
   </header>
 </template> 

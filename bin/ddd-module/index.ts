@@ -1,22 +1,14 @@
-import { defineNuxtModule} from "@nuxt/kit";
-import {resolve, basename} from "pathe";
+import { defineNuxtModule } from '@nuxt/kit';
 import util from '../../nuxt.modules';
-import config from './config.json';
-
-//eslint-disable-next-line
-const dirname = __dirname;
-const moduleName = basename(resolve(dirname));
-
-util.dirname = dirname;
-util.moduleName = moduleName;
-util.config = config;
+util.dirname = __dirname;
 
 export default defineNuxtModule({
-  
   // Default configuration options for your module
   defaults: {},
-  // register routes, components, autoimports and routes global middleware
+  // register routes, components, autoimports
   hooks: util.hooks(),
-  // set layouts & global plugins
-  setup: util.setup()
+  // set layouts, global plugins, middleware
+  setup(options: any, nuxt: any) {
+    util.setup(options, nuxt);
+  },
 });

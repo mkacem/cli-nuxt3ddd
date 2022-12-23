@@ -1,10 +1,10 @@
 <template>
-  <a-layout>
+  <div>
     <NuxtLoadingIndicator />
     <__NUXTDDD.PASCALCASE__HeaderWrapper class="ant-layout-header"> NuxtDDD migration</__NUXTDDD.PASCALCASE__HeaderWrapper>
     <slot />
     <__NUXTDDD.PASCALCASE__Footer/>
-  </a-layout>
+  </div>
 </template>
 
 <style lang="scss">

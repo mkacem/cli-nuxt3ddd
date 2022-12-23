@@ -13,7 +13,7 @@ if (yargs.argv._[0] == 'add' && yargs.argv._[1]=="module"){
 		console.log("\x1b[31m", 'module name required!');
 	}else{
 		require('./cli').cli(process.argv).then((e)=>{
-			utils.addModule(yargs.argv._[2]);
+			utils.addModule(yargs.argv._[2], e);
 		});		
 	}
 }

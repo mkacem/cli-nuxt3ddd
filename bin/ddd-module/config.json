@@ -1,12 +1,12 @@
 {
   "env": {
-    "API": "https://jsonplaceholder.typicode.com",
+    "API_MOCK": "https://jsonplaceholder.typicode.com",
     "POSTS": "/posts",
     "POST":"/posts/:id"
     
   },
   "envDev": {
-    "API": "https://jsonplaceholder.typicode.com",
+    "API_MOCK": "https://jsonplaceholder.typicode.com",
     "POSTS": "/posts",
     "POST":"/posts/:id"
   }

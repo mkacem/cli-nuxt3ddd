@@ -1,6 +1,7 @@
 const fs = require('fs-extra')
 const path = require('path');
 let nameOfModule = '';
+let options={};
 let localized = true;
 const toPascalCase = str => {
   return (str.match(/[a-zA-Z0-9]+/g) || []).map(w => `${w.charAt(0).toUpperCase()}${w.slice(1)}`).join('');
@@ -44,6 +45,21 @@ function readFiles(dirname, filePlus) {
           }else{
             data = data.replace(/__LOCALIZED###(.+?)###/gs,"$1")
           }
+          if(!options.plugin){
+            data= data.replace(/__PLUGIN###(.+?)###/gs,'')
+          }else{
+            data = data.replace(/__PLUGIN###(.+?)###/gs,"$1")
+          }
+          if(!options.layout){
+            data= data.replace(/__LAYOUT###(.+?)###/gs,'')
+          }else{
+            data = data.replace(/__LAYOUT###(.+?)###/gs,"$1")
+          }
+          if(!options.middleware){
+            data= data.replace(/__MIDDLEWARE###(.+?)###/gs,'')
+          }else{
+            data = data.replace(/__MIDDLEWARE###(.+?)###/gs,"$1")
+          }
 
           fs.writeFile(path.resolve(dirname + '/'+filename), data, 'utf-8', function (err2) {
             if (err2) throw err2;
@@ -85,7 +101,8 @@ function readFiles(dirname, filePlus) {
   });
 }
 
-function addModule(moduleName) {
+function addModule(moduleName, opts) {
+  options = opts
   nameOfModule = moduleName;
   try {
     var foo = require(path.resolve(process.cwd()+'/package.json'));
@@ -115,42 +132,42 @@ function addModule(moduleName) {
         fs.readFile(path.resolve(process.cwd() + '/nuxt.config.js'), 'utf-8', function (err, data) {
           if (err) throw err;
           data = data.replace(/["|']\bmodules+\b["|']/,"modules");
-          let reg = new RegExp("\\bmodules+\\b\\s*:\\s*\\[(?:([a-zA-Z0-9/\"',\\.\\s@~\\-_\\*]*))\\]",'gs')
-          let reg2 = new RegExp('./modules/'+toKebabCase(moduleName),"g");
-          if(!reg2.test(data)){
-            if(reg.test(data)){
-              data = data.replace(reg, function (capture, gr) {
-                var t = gr.split('\n');
+          // let reg = new RegExp("\\bmodules+\\b\\s*:\\s*\\[(?:([a-zA-Z0-9/\"',\\.\\s@~\\-_\\*]*))\\]",'gs')
+          // let reg2 = new RegExp('./modules/'+toKebabCase(moduleName),"g");
+          // if(!reg2.test(data)){
+          //   if(reg.test(data)){
+          //     data = data.replace(reg, function (capture, gr) {
+          //       var t = gr.split('\n');
                 
-                // optim using words.map(fnc)
-                output+= "modules:[\n";
-                let a = [];
-                for(var i=0; i<t.length; i++){            
-                  if(t[i].replace(/\s/g,'')!=''){
-                    a.push(t[i]);
-                  }
-                }
-                let toAdd = '\xa0\xa0\xa0\xa0"./modules/'+toKebabCase(moduleName)+'",\r'
-                if(/^\s*\/[\/|*]/gs.test(a[0])){
-                  a.splice(1, 0, toAdd)
-                }else{
-                  a.unshift(toAdd)
-                }
-                output+=a.join('\n');
-                output+='\n\xa0\xa0]';
+          //       // optim using words.map(fnc)
+          //       output+= "modules:[\n";
+          //       let a = [];
+          //       for(var i=0; i<t.length; i++){            
+          //         if(t[i].replace(/\s/g,'')!=''){
+          //           a.push(t[i]);
+          //         }
+          //       }
+          //       let toAdd = '\xa0\xa0\xa0\xa0"./modules/'+toKebabCase(moduleName)+'",\r'
+          //       if(/^\s*\/[\/|*]/gs.test(a[0])){
+          //         a.splice(1, 0, toAdd)
+          //       }else{
+          //         a.unshift(toAdd)
+          //       }
+          //       output+=a.join('\n');
+          //       output+='\n\xa0\xa0]';
                 
-                return output;
-              });
-            }else{ // if no modules property defined in nuxt.config.js
-              data = data.replace(/(\}\s*?\))(?!.*\1)/gs, (caption, gr)=>{              
-                let output = /(\s*,\s*\}\s*\)|(\(\{\s*[^,]?\}))/gs.test(data)?'':'\xa0\xa0,\n' 
-                output+= "\xa0\xa0modules:[\n";
-                output+='\xa0\xa0\xa0\xa0"./modules/'+toKebabCase(moduleName)+'",\r'
-                output+='\n\xa0\xa0]';
-                return output+'\n'+gr
-              })            
-            }
-          }
+          //       return output;
+          //     });
+          //   }else{ // if no modules property defined in nuxt.config.js
+          //     data = data.replace(/(\}\s*?\))(?!.*\1)/gs, (caption, gr)=>{              
+          //       let output = /(\s*,\s*\}\s*\)|(\(\{\s*[^,]?\}))/gs.test(data)?'':'\xa0\xa0,\n' 
+          //       output+= "\xa0\xa0modules:[\n";
+          //       output+='\xa0\xa0\xa0\xa0"./modules/'+toKebabCase(moduleName)+'",\r'
+          //       output+='\n\xa0\xa0]';
+          //       return output+'\n'+gr
+          //     })            
+          //   }
+          // }
           fs.writeFile(path.resolve(process.cwd()+'/nuxt.config.js'), data, 'utf-8', function (err) {
             if (err) throw err;
             console.log('filelistAsync complete');
@@ -159,7 +176,23 @@ function addModule(moduleName) {
             localized =false;
           }
           fs.copy(path.resolve(__dirname+'/ddd-module'), path.resolve(process.cwd()+'/modules/'+toKebabCase(moduleName)+'/')).then(()=>{
-            readFiles(path.resolve(process.cwd()+'/modules/'+toKebabCase(moduleName)))
+            if(!options.plugin){
+              fs.rmSync(path.resolve(process.cwd()+'/modules/'+toKebabCase(moduleName)+'/plugins'),
+              { recursive: true, force: true });
+            }
+            if(!options.middleware){
+              fs.rmSync(path.resolve(process.cwd()+'/modules/'+toKebabCase(moduleName)+'/middleware'),
+              { recursive: true, force: true });
+            }
+            if(!options.layout){
+              fs.rmSync(path.resolve(process.cwd()+'/modules/'+toKebabCase(moduleName)+'/layouts'),
+              { recursive: true, force: true });
+            }
+            if(!options.test){
+              fs.rmSync(path.resolve(process.cwd()+'/modules/'+toKebabCase(moduleName)+'/test'),
+              { recursive: true, force: true });
+            }
+             readFiles(path.resolve(process.cwd()+'/modules/'+toKebabCase(moduleName)));
           });
         });
       }

@@ -37,7 +37,6 @@ function readFiles(dirname, filePlus) {
             .replace(/__NUXTDDD\.PASCALCASE__/g, toPascalCase(nameOfModule))
             .replace(/__NUXTDDD\.CAPITALCASE__/g, toCapitalCase(toKebabCase(nameOfModule)))
             .replace(/__NUXTDDD\.KEBABCASE__/g, toKebabCase(nameOfModule));
-          
           if(!localized){
             data= data.replace(/\$t\s*\((.+?)\)/g,"$1")
               .replace(/localePath\s*\((.+?)\)/g,"$1")
@@ -101,7 +100,7 @@ function readFiles(dirname, filePlus) {
   });
 }
 
-function addModule(moduleName, opts) {
+const addModule = async(moduleName, opts) => {
   options = opts
   nameOfModule = moduleName;
   try {
@@ -116,7 +115,10 @@ function addModule(moduleName, opts) {
       console.log("\x1b[31m",'package.json not found')
     }
   }
-  
+  await fs.readFile(path.resolve(process.cwd() + '/.nuxt/imports.d.ts'), 'utf-8', function (err, data) {
+    if (err) throw err;
+    localized=/useI18n/.test(data);
+  });
   fs.access( path.resolve(process.cwd()+'/nuxt.modules.ts'), function(error) {
     if(error){
       console.log("\x1b[31m","nuxt.module.ts does not exist in root folder!");
@@ -128,10 +130,10 @@ function addModule(moduleName, opts) {
         console.log("\x1b[31m","module already exist! Please choose an other name.");
       }else{
         
-        var output=""
+        // var output=""
         fs.readFile(path.resolve(process.cwd() + '/nuxt.config.js'), 'utf-8', function (err, data) {
           if (err) throw err;
-          data = data.replace(/["|']\bmodules+\b["|']/,"modules");
+          // data = data.replace(/["|']\bmodules+\b["|']/,"modules");
           // let reg = new RegExp("\\bmodules+\\b\\s*:\\s*\\[(?:([a-zA-Z0-9/\"',\\.\\s@~\\-_\\*]*))\\]",'gs')
           // let reg2 = new RegExp('./modules/'+toKebabCase(moduleName),"g");
           // if(!reg2.test(data)){
@@ -168,13 +170,14 @@ function addModule(moduleName, opts) {
           //     })            
           //   }
           // }
-          fs.writeFile(path.resolve(process.cwd()+'/nuxt.config.js'), data, 'utf-8', function (err) {
-            if (err) throw err;
-            console.log('filelistAsync complete');
-          });
-          if(data.indexOf('@nuxtjs/i18n') == -1){
-            localized =false;
-          }
+          // fs.writeFile(path.resolve(process.cwd()+'/nuxt.config.js'), data, 'utf-8', function (err) {
+          //   if (err) throw err;
+          //   console.log('filelistAsync complete');
+          // });
+          // if(data.indexOf('@nuxtjs/i18n') == -1){
+          //   localized =false;
+          // }
+          
           fs.copy(path.resolve(__dirname+'/ddd-module'), path.resolve(process.cwd()+'/modules/'+toKebabCase(moduleName)+'/')).then(()=>{
             if(!options.plugin){
               fs.rmSync(path.resolve(process.cwd()+'/modules/'+toKebabCase(moduleName)+'/plugins'),
@@ -192,7 +195,7 @@ function addModule(moduleName, opts) {
               fs.rmSync(path.resolve(process.cwd()+'/modules/'+toKebabCase(moduleName)+'/test'),
               { recursive: true, force: true });
             }
-             readFiles(path.resolve(process.cwd()+'/modules/'+toKebabCase(moduleName)));
+            readFiles(path.resolve(process.cwd()+'/modules/'+toKebabCase(moduleName)));
           });
         });
       }

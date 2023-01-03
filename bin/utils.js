@@ -1,7 +1,9 @@
 const fs = require('fs-extra')
 const path = require('path');
 let nameOfModule = '';
-let options={};
+let newName = '';
+let elementName='';
+let options = {};
 let localized = true;
 const toPascalCase = str => {
   return (str.match(/[a-zA-Z0-9]+/g) || []).map(w => `${w.charAt(0).toUpperCase()}${w.slice(1)}`).join('');
@@ -18,199 +20,352 @@ const toCapitalCase = str => {
   return str.toUpperCase();
 }
 
-function readFiles(dirname, filePlus) {
-  if(filePlus){
-    dirname = path.resolve(dirname+'/'+filePlus);
+const prepareFiles = (dirname, filePlus) => {
+  if (filePlus) {
+    dirname = path.resolve(dirname + '/' + filePlus);
   }
-  fs.readdir(dirname, function(err0, filenames) {
+  fs.readdir(dirname, (err0, filenames) => {
     if (err0) {
       console.log(err0)
       return;
     }
-    filenames.forEach(function(filename) {
-      if (path.extname(filename)) {        
+    filenames.forEach((filename) => {
+      if (path.extname(filename)) {
 
-        fs.readFile(path.resolve(dirname + '/'+filename), 'utf-8', function(err, data) {
+        fs.readFile(path.resolve(dirname + '/' + filename), 'utf-8', (err, data) => {
           if (err) throw err;
-          
-          data=data.replace(/__NUXTDDD\.CAMELCASE__/g, toCamelCase(nameOfModule))
+
+          data = data.replace(/__NUXTDDD\.CAMELCASE__/g, toCamelCase(nameOfModule))
             .replace(/__NUXTDDD\.PASCALCASE__/g, toPascalCase(nameOfModule))
             .replace(/__NUXTDDD\.CAPITALCASE__/g, toCapitalCase(toKebabCase(nameOfModule)))
             .replace(/__NUXTDDD\.KEBABCASE__/g, toKebabCase(nameOfModule));
-          if(!localized){
-            data= data.replace(/\$t\s*\((.+?)\)/g,"$1")
-              .replace(/localePath\s*\((.+?)\)/g,"$1")
-              .replace(/__LOCALIZED###(.+?)###/gs,'')
-          }else{
-            data = data.replace(/__LOCALIZED###(.+?)###/gs,"$1")
+          if (!localized) {
+            data = data.replace(/\$t\s*\((.+?)\)/g, "$1")
+              .replace(/localePath\s*\((.+?)\)/g, "$1")
+              .replace(/__LOCALIZED###(.+?)###/gs, '')
+          } else {
+            data = data.replace(/__LOCALIZED###(.+?)###/gs, "$1")
           }
-          if(!options.plugin){
-            data= data.replace(/__PLUGIN###(.+?)###/gs,'')
-          }else{
-            data = data.replace(/__PLUGIN###(.+?)###/gs,"$1")
+          if (!options.plugin) {
+            data = data.replace(/__PLUGIN###(.+?)###/gs, '')
+          } else {
+            data = data.replace(/__PLUGIN###(.+?)###/gs, "$1")
           }
-          if(!options.layout){
-            data= data.replace(/__LAYOUT###(.+?)###/gs,'')
-          }else{
-            data = data.replace(/__LAYOUT###(.+?)###/gs,"$1")
+          if (!options.layout) {
+            data = data.replace(/__LAYOUT###(.+?)###/gs, '')
+          } else {
+            data = data.replace(/__LAYOUT###(.+?)###/gs, "$1")
           }
-          if(!options.middleware){
-            data= data.replace(/__MIDDLEWARE###(.+?)###/gs,'')
-          }else{
-            data = data.replace(/__MIDDLEWARE###(.+?)###/gs,"$1")
+          if (!options.middleware) {
+            data = data.replace(/__MIDDLEWARE###(.+?)###/gs, '')
+          } else {
+            data = data.replace(/__MIDDLEWARE###(.+?)###/gs, "$1")
           }
 
-          fs.writeFile(path.resolve(dirname + '/'+filename), data, 'utf-8', function (err2) {
+          fs.writeFile(path.resolve(dirname + '/' + filename), data, 'utf-8', (err2) => {
             if (err2) throw err2;
-            if(/__NUXTDDD\.CAPITALCASE__/g.test(filename)){
-              fs.rename( 
-                path.resolve(dirname+'/'+filename), 
-                path.resolve(dirname+'/'+filename.replace(/__NUXTDDD\.CAPITALCASE__/g,toCapitalCase(toKebabCase(nameOfModule)))), (err3)=>{ 
-                if (err3) throw err3;
-              } );
+            if (/__NUXTDDD\.CAPITALCASE__/g.test(filename)) {
+              fs.rename(
+                path.resolve(dirname + '/' + filename),
+                path.resolve(dirname + '/' + filename.replace(/__NUXTDDD\.CAPITALCASE__/g, toCapitalCase(toKebabCase(nameOfModule)))), (err3) => {
+                  if (err3) throw err3;
+                });
             }
-            if(/__NUXTDDD\.CAMELCASE__/g.test(filename)){
-              fs.rename( 
-                path.resolve(dirname+'/'+filename), 
-                path.resolve(dirname+'/'+filename.replace(/__NUXTDDD\.CAMELCASE__/g,toCamelCase(nameOfModule))), (err3)=>{ 
-                if (err3) throw err3;
-              } );
+            if (/__NUXTDDD\.CAMELCASE__/g.test(filename)) {
+              fs.rename(
+                path.resolve(dirname + '/' + filename),
+                path.resolve(dirname + '/' + filename.replace(/__NUXTDDD\.CAMELCASE__/g, toCamelCase(nameOfModule))), (err3) => {
+                  if (err3) throw err3;
+                });
             }
-            if(/__NUXTDDD\.PASCALCASE__/g.test(filename)){
-              fs.rename( 
-                path.resolve(dirname+'/'+filename), 
-                path.resolve(dirname+'/'+filename.replace(/__NUXTDDD\.PASCALCASE__/g,toPascalCase(nameOfModule))), (err3)=>{ 
-                if (err3) throw err3;
-              } );
+            if (/__NUXTDDD\.PASCALCASE__/g.test(filename)) {
+              fs.rename(
+                path.resolve(dirname + '/' + filename),
+                path.resolve(dirname + '/' + filename.replace(/__NUXTDDD\.PASCALCASE__/g, toPascalCase(nameOfModule))), (err3) => {
+                  if (err3) throw err3;
+                });
             }
-            if(/__NUXTDDD\.KEBABCASE__/g.test(filename)){
-              fs.rename( 
-                path.resolve(dirname+'/'+filename), 
-                path.resolve(dirname+'/'+filename.replace(/__NUXTDDD\.KEBABCASE__/g,toKebabCase(nameOfModule))), (err3)=>{ 
-                if (err3) throw err3;
-              } );
+            if (/__NUXTDDD\.KEBABCASE__/g.test(filename)) {
+              fs.rename(
+                path.resolve(dirname + '/' + filename),
+                path.resolve(dirname + '/' + filename.replace(/__NUXTDDD\.KEBABCASE__/g, toKebabCase(nameOfModule))), (err3) => {
+                  if (err3) throw err3;
+                });
             }
           });
         });
-        
-      }else{
-        readFiles(dirname, filename);
+
+      } else {
+        prepareFiles(dirname, filename);
       }
     });
   });
 }
 
-const addModule = async(moduleName, opts) => {
+const addModule = async (moduleName, opts) => {
   options = opts
   nameOfModule = moduleName;
   try {
-    var foo = require(path.resolve(process.cwd()+'/package.json'));
-    if(JSON.stringify(foo.dependencies).indexOf('pinia') == -1 && 
-      JSON.stringify(foo.devDependencies).indexOf('pinia') == -1){
+    var foo = require(path.resolve(process.cwd() + '/package.json'));
+    if (JSON.stringify(foo.dependencies).indexOf('pinia') == -1 &&
+      JSON.stringify(foo.devDependencies).indexOf('pinia') == -1) {
       console.log("\x1b[31m", 'please install @pinia/nuxt');
+      console.log("\x1b[0m", '');
       return
     }
   } catch (er) {
-    if(er){
-      console.log("\x1b[31m",'package.json not found')
+    if (er) {
+      console.log("\x1b[31m", 'package.json not found');
+      console.log("\x1b[0m", '');
     }
   }
-  await fs.readFile(path.resolve(process.cwd() + '/.nuxt/imports.d.ts'), 'utf-8', function (err, data) {
+  await fs.readFile(path.resolve(process.cwd() + '/.nuxt/imports.d.ts'), 'utf-8', (err, data) => {
     if (err) throw err;
-    localized=/useI18n/.test(data);
+    localized = /useI18n/.test(data);
   });
-  fs.access( path.resolve(process.cwd()+'/nuxt.modules.ts'), function(error) {
-    if(error){
-      console.log("\x1b[31m","nuxt.module.ts does not exist in root folder!");
+  fs.access(path.resolve(process.cwd() + '/nuxt.modules.ts'), (error) => {
+    if (error) {
+      console.log("\x1b[31m", "nuxt.module.ts does not exist in root folder!");
+      console.log("\x1b[0m", '');
       return;
     }
-  
-    fs.access( path.resolve(process.cwd()+'/modules/'+toKebabCase(moduleName)), function(error) {
-      if(!error){
-        console.log("\x1b[31m","module already exist! Please choose an other name.");
-      }else{
-        
-        // var output=""
-        fs.readFile(path.resolve(process.cwd() + '/nuxt.config.js'), 'utf-8', function (err, data) {
-          if (err) throw err;
-          // data = data.replace(/["|']\bmodules+\b["|']/,"modules");
-          // let reg = new RegExp("\\bmodules+\\b\\s*:\\s*\\[(?:([a-zA-Z0-9/\"',\\.\\s@~\\-_\\*]*))\\]",'gs')
-          // let reg2 = new RegExp('./modules/'+toKebabCase(moduleName),"g");
-          // if(!reg2.test(data)){
-          //   if(reg.test(data)){
-          //     data = data.replace(reg, function (capture, gr) {
-          //       var t = gr.split('\n');
-                
-          //       // optim using words.map(fnc)
-          //       output+= "modules:[\n";
-          //       let a = [];
-          //       for(var i=0; i<t.length; i++){            
-          //         if(t[i].replace(/\s/g,'')!=''){
-          //           a.push(t[i]);
-          //         }
-          //       }
-          //       let toAdd = '\xa0\xa0\xa0\xa0"./modules/'+toKebabCase(moduleName)+'",\r'
-          //       if(/^\s*\/[\/|*]/gs.test(a[0])){
-          //         a.splice(1, 0, toAdd)
-          //       }else{
-          //         a.unshift(toAdd)
-          //       }
-          //       output+=a.join('\n');
-          //       output+='\n\xa0\xa0]';
-                
-          //       return output;
-          //     });
-          //   }else{ // if no modules property defined in nuxt.config.js
-          //     data = data.replace(/(\}\s*?\))(?!.*\1)/gs, (caption, gr)=>{              
-          //       let output = /(\s*,\s*\}\s*\)|(\(\{\s*[^,]?\}))/gs.test(data)?'':'\xa0\xa0,\n' 
-          //       output+= "\xa0\xa0modules:[\n";
-          //       output+='\xa0\xa0\xa0\xa0"./modules/'+toKebabCase(moduleName)+'",\r'
-          //       output+='\n\xa0\xa0]';
-          //       return output+'\n'+gr
-          //     })            
-          //   }
-          // }
-          // fs.writeFile(path.resolve(process.cwd()+'/nuxt.config.js'), data, 'utf-8', function (err) {
-          //   if (err) throw err;
-          //   console.log('filelistAsync complete');
-          // });
-          // if(data.indexOf('@nuxtjs/i18n') == -1){
-          //   localized =false;
-          // }
-          
-          fs.copy(path.resolve(__dirname+'/ddd-module'), path.resolve(process.cwd()+'/modules/'+toKebabCase(moduleName)+'/')).then(()=>{
-            if(!options.plugin){
-              fs.rmSync(path.resolve(process.cwd()+'/modules/'+toKebabCase(moduleName)+'/plugins'),
+
+    fs.access(path.resolve(process.cwd() + '/modules/' + toKebabCase(moduleName)), (error) => {
+      if (!error) {
+        console.log("\x1b[31m", "module already exist! Please choose an other name.");
+        console.log("\x1b[0m", '');
+      } else {
+        fs.copy(path.resolve(__dirname + '/ddd-module'), path.resolve(process.cwd() + '/modules/' + toKebabCase(moduleName) + '/')).then(() => {
+          if (!options.plugin) {
+            fs.rmSync(path.resolve(process.cwd() + '/modules/' + toKebabCase(moduleName) + '/plugins'),
               { recursive: true, force: true });
-            }
-            if(!options.middleware){
-              fs.rmSync(path.resolve(process.cwd()+'/modules/'+toKebabCase(moduleName)+'/middleware'),
+          }
+          if (!options.middleware) {
+            fs.rmSync(path.resolve(process.cwd() + '/modules/' + toKebabCase(moduleName) + '/middleware'),
               { recursive: true, force: true });
-            }
-            if(!options.layout){
-              fs.rmSync(path.resolve(process.cwd()+'/modules/'+toKebabCase(moduleName)+'/layouts'),
+          }
+          if (!options.layout) {
+            fs.rmSync(path.resolve(process.cwd() + '/modules/' + toKebabCase(moduleName) + '/layouts'),
               { recursive: true, force: true });
-            }
-            if(!options.test){
-              fs.rmSync(path.resolve(process.cwd()+'/modules/'+toKebabCase(moduleName)+'/test'),
+          }
+          if (!options.test) {
+            fs.rmSync(path.resolve(process.cwd() + '/modules/' + toKebabCase(moduleName) + '/test'),
               { recursive: true, force: true });
-            }
-            readFiles(path.resolve(process.cwd()+'/modules/'+toKebabCase(moduleName)));
-          });
+          }
+          prepareFiles(path.resolve(process.cwd() + '/modules/' + toKebabCase(moduleName)));
         });
       }
     })
   });
 }
+const renameFolder = async (oldF, newF) => {
+  return new Promise((resolve) => {
+    fs.rename(
+      path.resolve(oldF),
+      path.resolve(newF), (err) => {
+        if (err) throw err;
+        resolve();
+      });
+  })
+}
+const renameFiles = async (dirname, filePlus) => {
 
+  if (filePlus) {
+    dirname = path.resolve(dirname + '/' + filePlus);
+  } else {
+    await renameFolder(dirname, 'modules/' + newName);
+    dirname = 'modules/' + newName;
+  }
+  fs.readdir(dirname, (err0, filenames) => {
+    if (err0) {
+      console.log(err0)
+      return;
+    }
+    filenames.forEach((filename) => {
+      if (path.extname(filename)) {
+
+        fs.readFile(path.resolve(dirname + '/' + filename), 'utf-8', (err, data) => {
+          if (err) throw err;
+          let regEx1 = new RegExp(toCamelCase(nameOfModule) + '(?!-)', 'g');
+          data = data.replace(regEx1, toCamelCase(newName));
+          let regEx2 = new RegExp(toCapitalCase(nameOfModule) + '(?!-)', 'g');
+          data = data.replace(regEx2, toCapitalCase(newName));
+          let regEx3 = new RegExp(toPascalCase(nameOfModule) + '(?!-)', 'g');
+          data = data.replace(regEx3, toPascalCase(newName));
+          let regEx4 = new RegExp(toKebabCase(nameOfModule) + '-', 'g');
+          data = data.replace(regEx4, toKebabCase(newName) + '-');
+          fs.writeFile(path.resolve(dirname + '/' + filename), data, 'utf-8', (err2) => {
+            if (err2) throw err2;
+
+            if (regEx1.test(filename)) {
+              renameFolder(dirname + '/' + filename, dirname + '/' + filename.replace(regEx1, toCamelCase(newName)));
+            }
+            if (regEx2.test(filename)) {
+              renameFolder(dirname + '/' + filename, dirname + '/' + filename.replace(regEx2, toKebabCase(newName)));
+            }
+            if (regEx3.test(filename)) {
+              renameFolder(dirname + '/' + filename, dirname + '/' + filename.replace(regEx3, toPascalCase(newName)));
+            }
+            if (regEx4.test(filename)) {
+              renameFolder(dirname + '/' + filename, dirname + '/' + filename.replace(regEx4, toKebabCase(newName) + '-'));
+            }
+          });
+        });
+
+      } else {
+        renameFiles(dirname, filename);
+      }
+    });
+  });
+}
+const renameModule = async (moduleName, newModuleName, opts) => {
+  fs.access(path.resolve(process.cwd() + '/modules/' + moduleName), (error) => {
+    if (error) {
+      console.log("\x1b[31m", "module name does not exist!");
+      console.log("\x1b[0m", '');
+    } else {
+      newName = newModuleName;
+      nameOfModule = moduleName;
+      renameFiles(path.resolve(process.cwd() + '/modules/' + moduleName));
+    }
+  });
+}
+
+const prepareFolder = (moduleName,type) => {  
+  fs.access(path.resolve(process.cwd() + '/modules/' + moduleName+'/'+type), (noexist) => {
+    
+    const pathTo = path.resolve(process.cwd() + '/modules/' + moduleName + '/'+type+'/');
+    let defaulFile='__NUXTDDD.CAMELCASE__.ts';
+    let filename=toCamelCase(elementName)+'.ts';
+    if(type=="plugins"){
+      defaulFile = '__NUXTDDD.CAMELCASE__-msg.ts';
+      filename=toCamelCase(elementName)+'-msg.ts'
+    }else if(type == 'stores'){
+      defaulFile = 'useStore.ts';
+      filename=toCamelCase(elementName)+'Store.ts'
+    }else if(type == 'layouts'){
+      defaulFile = '__NUXTDDD.KEBABCASE__-layout.vue';
+      filename=toKebabCase(elementName)+'-layout.vue'
+    }else if(type == 'tests/api'){
+      defaulFile = '__NUXTDDD.KEBABCASE__.spec.js';
+      filename=toKebabCase(elementName)+'.spec.js'
+    }else if(type == 'tests/e2e'){
+      defaulFile = '__NUXTDDD.KEBABCASE__.spec.js';
+      filename=toKebabCase(elementName)+'.spec.js'
+    }
+    
+    if (!noexist) {
+      fs.access(path.resolve(pathTo+'/'+filename), (noFile) => {
+        if (!noFile) {
+          console.log("\x1b[31m", "error "+type+": file already exist!");
+          console.log("\x1b[0m", '');
+        }else{          
+          fs.copy(path.resolve(__dirname + '/ddd-module/'+type+'/'+defaulFile), path.resolve(pathTo+'/'+filename)).then(() => {
+            prepareFiles(pathTo);
+          })
+        }
+      })
+    }else{    
+      fs.copy(path.resolve(__dirname + '/ddd-module/'+type), pathTo).then(() => {
+        prepareFiles(pathTo);
+      })
+    }
+  });
+}
+const addPlugin = (name, moduleName) =>{
+  fs.access(path.resolve(process.cwd() + '/modules/' + moduleName), (error) => {
+    if (error) {
+      console.log("\x1b[31m", "module name does not exist!");
+      console.log("\x1b[0m", '');
+    } else {
+      nameOfModule = name;
+      elementName = name
+      prepareFolder(moduleName, 'plugins');
+    }
+  });
+}
+const addMiddleware = (name, moduleName) =>{
+  fs.access(path.resolve(process.cwd() + '/modules/' + moduleName), (error) => {
+    if (error) {
+      console.log("\x1b[31m", "module name does not exist!");
+      console.log("\x1b[0m", '');
+    } else {
+      nameOfModule = name;
+      elementName = name
+      prepareFolder(moduleName, 'middleware');
+    }
+  });
+}
+const addComposable = (name, moduleName) =>{
+  fs.access(path.resolve(process.cwd() + '/modules/' + moduleName), (error) => {
+    if (error) {
+      console.log("\x1b[31m", "module name does not exist!");
+      console.log("\x1b[0m", '');
+    } else {
+      nameOfModule = name;
+      elementName = name
+      prepareFolder(moduleName, 'composables');
+    }
+  });
+}
+const addLayout = (name, moduleName) =>{
+  fs.access(path.resolve(process.cwd() + '/modules/' + moduleName), (error) => {
+    if (error) {
+      console.log("\x1b[31m", "module name does not exist!");
+      console.log("\x1b[0m", '');
+    } else {
+      nameOfModule = name;
+      elementName = name;
+      prepareFolder(moduleName, 'layouts');
+    }
+  });
+}
+const addStore = (name, moduleName) =>{
+  fs.access(path.resolve(process.cwd() + '/modules/' + moduleName), (error) => {
+    if (error) {
+      console.log("\x1b[31m", "module name does not exist!");
+      console.log("\x1b[0m", '');
+    } else {
+      nameOfModule = name;
+      elementName = name;
+      prepareFolder(moduleName, 'stores');
+    }
+  });
+}
+const addTest = (type, name, moduleName) =>{
+  console.log(type , name, moduleName)
+  fs.access(path.resolve(process.cwd() + '/modules/' + moduleName), (error) => {
+    if (error) {
+      console.log("\x1b[31m", "module name does not exist!");
+      console.log("\x1b[0m", '');
+    } else {
+      nameOfModule = name;
+      elementName = name;
+      prepareTest(type, moduleName);
+    }
+  });
+}
+const prepareTest = (type, moduleName) => {
+  prepareFolder(moduleName, 'tests/'+type);
+}
 // module.exports = { showHelp: showHelp, parseSentence: parseSentence };
 const usage = "\nUsage: tran <lang_name> sentence to be translated";
-function showHelp() {                                                            
-    console.log(usage);  
-    console.log('\nOptions:\r')  
-    // console.log('\t--version\t      ' + 'Show version number.' + '\t\t' + '[boolean]\r')  
-    // console.log('    -l, --languages\t' + '      ' + 'List all languages.' + '\t\t' + '[boolean]\r')  
-    console.log('\t--help\t\t      ' + 'Show help.' + '\t\t\t' + '[boolean]\n')  
-}  
+const showHelp = () => {
+  console.log(usage);
+  console.log('\nOptions:\r')
+  // console.log('\t--version\t      ' + 'Show version number.' + '\t\t' + '[boolean]\r')  
+  // console.log('    -l, --languages\t' + '      ' + 'List all languages.' + '\t\t' + '[boolean]\r')  
+  console.log('\t--help\t\t      ' + 'Show help.' + '\t\t\t' + '[boolean]\n')
+}
 
-module.exports = {  showHelp: showHelp, addModule: addModule };
+module.exports = { 
+  showHelp: showHelp,
+  addModule: addModule, 
+  renameModule: renameModule,
+  addPlugin:addPlugin,
+  addMiddleware:addMiddleware,
+  addStore:addStore,
+  addLayout:addLayout,
+  addComposable:addComposable,
+  addTest:addTest
+};

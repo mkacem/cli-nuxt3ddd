@@ -231,10 +231,11 @@ const renameModule = async (moduleName, newModuleName, opts) => {
   });
 }
 
-const prepareFolder = (moduleName,type) => {  
+const prepareFolder = (moduleName,type) => {
+  const pathTo = path.resolve(process.cwd() + '/modules/' + moduleName + '/'+type+'/'); 
   fs.access(path.resolve(process.cwd() + '/modules/' + moduleName+'/'+type), (noexist) => {
     
-    const pathTo = path.resolve(process.cwd() + '/modules/' + moduleName + '/'+type+'/');
+    
     let defaulFile='__NUXTDDD.CAMELCASE__.ts';
     let filename=toCamelCase(elementName)+'.ts';
     if(type=="plugins"){
@@ -265,7 +266,7 @@ const prepareFolder = (moduleName,type) => {
           })
         }
       })
-    }else{    
+    }else{
       fs.copy(path.resolve(__dirname + '/ddd-module/'+type), pathTo).then(() => {
         prepareFiles(pathTo);
       })
@@ -332,8 +333,7 @@ const addStore = (name, moduleName) =>{
     }
   });
 }
-const addTest = (type, name, moduleName) =>{
-  console.log(type , name, moduleName)
+const addTest = (name, type, moduleName) =>{
   fs.access(path.resolve(process.cwd() + '/modules/' + moduleName), (error) => {
     if (error) {
       console.log("\x1b[31m", "module name does not exist!");
@@ -353,11 +353,21 @@ const usage = "\nUsage: tran <lang_name> sentence to be translated";
 const showHelp = () => {
   console.log(usage);
   console.log('\nOptions:\r')
-  // console.log('\t--version\t      ' + 'Show version number.' + '\t\t' + '[boolean]\r')  
-  // console.log('    -l, --languages\t' + '      ' + 'List all languages.' + '\t\t' + '[boolean]\r')  
+  console.log('\t--version\t      ' + 'Show version number.' + '\t\t' + '[number]\r')    
   console.log('\t--help\t\t      ' + 'Show help.' + '\t\t\t' + '[boolean]\n')
+  console.log('\nCommands:\r')
+  console.log('\t-add\t\t')
+  console.log('\t-rename\t\t ');
+  console.log('\nRun `om help COMMAND` for more information on specific commands.')
 }
-
+const showHelpCmd = (cmd) => {
+  if(cmd.toLowerCase() == 'add'){
+    console.log( "\nUsage: om add [module|plugin|layout|middleware|composable|store|test] [name] [flags]")
+    console.log('\nOptions:\r')
+    console.log('\t--src\t      ' + 'module name.' + '\t\t' + '[string]\r')    
+    console.log('\t--type\t      ' + 'type of test.' + '\t\t' + '[string]\r')    
+  }
+}
 module.exports = { 
   showHelp: showHelp,
   addModule: addModule, 
@@ -367,5 +377,6 @@ module.exports = {
   addStore:addStore,
   addLayout:addLayout,
   addComposable:addComposable,
-  addTest:addTest
+  addTest:addTest,
+  showHelpCmd:showHelpCmd
 };
